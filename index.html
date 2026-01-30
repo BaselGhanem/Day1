@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>Excel Journey with Cello | X Academy</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Almarai:wght@300;400;700;800&display=swap" rel="stylesheet">
+    
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <script src="https://unpkg.com/lucide@latest"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: { sans: ['Almarai', 'sans-serif'] },
+                    colors: {
+                        // Teal Theme (Default/Male)
+                        cello: {
+                            base: '#099999',
+                            light: '#2CD4D4',
+                            dark: '#055555',
+                            bg: '#f0fdf4'
+                        },
+                        // Pink Theme (Female)
+                        rose: {
+                            base: '#e11d48',    // Rose-600
+                            light: '#fda4af',   // Rose-300
+                            dark: '#881337',    // Rose-900
+                            bg: '#fff1f2'       // Rose-50
+                        }
+                    },
+                    animation: {
+                        'blob': 'blob 10s infinite',
+                        'float-slow': 'float 8s ease-in-out infinite',
+                        'pulse-glow': 'pulse-glow 3s infinite',
+                        'bounce-in': 'bounceIn 0.6s cubic-bezier(0.68, -0.55, 0.265, 1.55)',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                    },
+                    keyframes: {
+                        blob: {
+                            '0%': { transform: 'translate(0px, 0px) scale(1)' },
+                            '33%': { transform: 'translate(30px, -50px) scale(1.1)' },
+                            '66%': { transform: 'translate(-20px, 20px) scale(0.9)' },
+                            '100%': { transform: 'translate(0px, 0px) scale(1)' }
+                        },
+                        float: {
+                            '0%, 100%': { transform: 'translateY(0)' },
+                            '50%': { transform: 'translateY(-15px)' }
+                        },
+                        'pulse-glow': {
+                            '0%, 100%': { boxShadow: '0 0 20px var(--glow-color, rgba(9, 153, 153, 0.2))' },
+                            '50%': { boxShadow: '0 0 40px var(--glow-color, rgba(9, 153, 153, 0.6))' }
+                        },
+                        bounceIn: {
+                            '0%': { transform: 'scale(0.3); opacity: 0' },
+                            '50%': { transform: 'scale(1.05)' },
+                            '70%': { transform: 'scale(0.9)' },
+                            '100%': { transform: 'scale(1); opacity: 1' }
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(100px); opacity: 0' },
+                            '100%': { transform: 'translateY(0); opacity: 1' }
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        :root {
+            --primary: #099999;
+            --primary-light: #2CD4D4;
+            --primary-dark: #055555;
+            --bg-blob-1: #099999;
+            --bg-blob-2: #2CD4D4;
+            --bg-blob-3: #e0f2f1;
+            --glow-color: rgba(9, 153, 153, 0.3);
+            --selection-bg: #ccfbf1;
+            --selection-text: #115e59;
+        }
+
+        /* Pink Theme Variables */
+        body.theme-female {
+            --primary: #db2777; /* Pink-600 */
+            --primary-light: #f472b6; /* Pink-400 */
+            --primary-dark: #831843; /* Pink-900 */
+            --bg-blob-1: #fbcfe8;
+            --bg-blob-2: #f472b6;
+            --bg-blob-3: #fdf2f8;
+            --glow-color: rgba(219, 39, 119, 0.3);
+            --selection-bg: #fce7f3;
+            --selection-text: #831843;
+        }
+
+        body { 
+            font-family: 'Almarai', sans-serif; 
+            overflow-x: hidden; 
+            background-color: #f8fafc;
+            perspective: 1000px;
+        }
+        
+        ::selection { background: var(--selection-bg); color: var(--selection-text); }
+
+        /* --- Dynamic Aurora Background --- */
+        .aurora-bg {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            z-index: -1;
+            overflow: hidden;
+            background: radial-gradient(circle at 50% 50%, #fff 0%, #f8fafc 100%);
+        }
+        .blob {
+            position: absolute;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: 0.5;
+            animation: blob 10s infinite alternate;
+            transition: background-color 1s ease;
+        }
+        .blob-1 { top: -10%; left: -10%; width: 500px; height: 500px; background: var(--bg-blob-1); }
+        .blob-2 { bottom: -10%; right: -10%; width: 400px; height: 400px; background: var(--bg-blob-2); animation-delay: 2s; }
+        .blob-3 { top: 40%; left: 40%; width: 300px; height: 300px; background: var(--bg-blob-3); animation-delay: 4s; }
+
+        /* --- Premium Glass Card --- */
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 
+                0 20px 40px -10px rgba(0, 0, 0, 0.05),
+                0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+            transform-style: preserve-3d;
+            transition: all 0.3s ease-out;
+        }
+
+        /* --- UI Elements --- */
+        .progress-glow {
+            box-shadow: 0 0 10px var(--primary);
+        }
+
+        .option-btn {
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+        .option-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 4px; height: 100%;
+            background: var(--primary);
+            transform: scaleY(0);
+            transition: transform 0.3s ease;
+        }
+        .option-btn:hover:not(:disabled) {
+            transform: translateX(-5px);
+            background: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 15px var(--glow-color);
+        }
+        .option-btn:hover:not(:disabled)::before {
+            transform: scaleY(1);
+        }
+
+        .correct-anim { animation: successPulse 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .wrong-anim { animation: errorShake 0.4s ease-in-out; }
+
+        @keyframes successPulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); border-color: var(--primary); box-shadow: 0 0 20px var(--glow-color); }
+            100% { transform: scale(1); }
+        }
+        @keyframes errorShake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .bg-primary { background-color: var(--primary) !important; }
+        .text-primary { color: var(--primary) !important; }
+        .border-primary { border-color: var(--primary) !important; }
+        .bg-primary-light { background-color: var(--primary-light) !important; }
+
+        /* Input Styles */
+        .input-glass {
+            background: rgba(255, 255, 255, 0.5);
+            border: 2px solid transparent;
+            transition: all 0.3s ease;
+        }
+        .input-glass:focus {
+            background: white;
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 4px var(--glow-color);
+        }
+    </style>
+</head>
+<body class="min-h-screen text-slate-800 flex flex-col items-center">
+
+    <div class="aurora-bg">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <nav class="fixed top-0 w-full z-40 px-4 pt-6">
+        <div class="max-w-5xl mx-auto flex justify-between items-center glass-card rounded-full px-6 py-3">
+            <div class="flex items-center gap-3">
+                <div class="w-10 h-10 bg-primary rounded-full flex items-center justify-center text-white font-black shadow-lg" style="background: var(--primary)">X</div>
+                <div class="hidden sm:block">
+                    <h1 class="font-bold text-slate-800 text-sm">X Academy</h1>
+                    <p class="text-[10px] text-primary font-bold uppercase tracking-wider" style="color: var(--primary)">Excel Journey</p>
+                </div>
+            </div>
+            
+            <div class="flex items-center gap-4 md:gap-6">
+                <div id="user-badge" class="hidden md:flex items-center gap-2 bg-white/40 px-3 py-1 rounded-full border border-white/60">
+                    <span class="text-lg">👤</span>
+                    <span id="nav-username" class="font-bold text-sm text-slate-600">زائر</span>
+                </div>
+
+                <div class="hidden md:block w-32 lg:w-48 h-2 bg-gray-200/50 rounded-full overflow-hidden backdrop-blur-sm">
+                    <div id="progress-bar" class="h-full w-0 transition-all duration-700 ease-out progress-glow" style="background: var(--primary)"></div>
+                </div>
+                
+                <div class="flex items-center gap-2 bg-white/50 px-4 py-1.5 rounded-full border border-white/60 shadow-sm">
+                    <span class="text-lg">🔥</span>
+                    <span id="streak-display" class="font-black text-sm text-orange-500 hidden md:block mr-1">0</span>
+                    <span class="text-gray-300 mx-1">|</span>
+                    <span class="text-lg">🏆</span>
+                    <span id="score-display" class="font-black text-xl text-primary" style="color: var(--primary)">0</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main class="flex-grow flex flex-col items-center justify-center px-4 w-full max-w-4xl pt-24 pb-20 relative perspective-1000">
+        <div id="view-container" class="w-full transition-all duration-500">
+            </div>
+    </main>
+
+    <footer class="fixed bottom-0 w-full z-40 py-4 glass-card border-t border-b-0 border-x-0 rounded-t-3xl">
+        <div class="max-w-6xl mx-auto px-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs font-medium text-slate-500">
+            <div class="flex items-center gap-2">
+                <span>تم التصميم بحب ❤️ بواسطة</span>
+                <span class="text-primary font-bold" style="color: var(--primary)">Basel Ghanem</span>
+            </div>
+            <div class="flex items-center gap-5">
+                <a href="https://www.linkedin.com/in/baselghanem" target="_blank" class="hover:text-primary transition-all hover:scale-125" style="color: var(--primary)">
+                    <i data-lucide="linkedin" class="w-5 h-5"></i>
+                </a>
+                <a href="https://wa.me/+962788458787" target="_blank" class="hover:text-green-500 transition-all hover:scale-125">
+                    <i data-lucide="message-circle" class="w-5 h-5"></i>
+                </a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // --- 1. DATA ---
+        const QuizData = [
+            { id: 1, question: "شو الهدف الرئيسي لما نستخدم Excel بالشغل؟", options: [{id:"A", text:"عشان نكتب رسائل غرامية"}, {id:"B", text:"نحلل الأرقام وناخد قرارات صح"}, {id:"C", text:"نرسم رسمات حلوة"}, {id:"D", text:"نبعث إيميلات للمدير"}], correctAnswer: "B" },
+            { id: 2, question: "وين بتلاقي كبسات الـ Home و Insert، بأي شريط؟", options: [{id:"A", text:"شريط الحالة (Status)"}, {id:"B", text:"الريبون (Ribbon) اللي فوق"}, {id:"C", text:"شريط المعادلات"}, {id:"D", text:"شريط الوصول السريع"}], correctAnswer: "B" },
+            { id: 3, question: "لو بدنا نحكي عن الخلية اللي بالعمود C والصف 5، شو بنسميها؟", options: [{id:"A", text:"5C"}, {id:"B", text:"C-5"}, {id:"C", text:"C5"}, {id:"D", text:"الخلية الخامسة"}], correctAnswer: "C" },
+            { id: 4, question: "عشان الإكسل يفهم إنك بدك تكتب معادلة، بشو بتبلش؟", options: [{id:"A", text:"هاشتاغ #"}, {id:"B", text:"سلاش /"}, {id:"C", text:"يساوي ="}, {id:"D", text:"آت @"}], correctAnswer: "C" },
+            { id: 5, question: "كيف بتظلل عمود كامل بكبسة زر؟", options: [{id:"A", text:"بتكبس على حرف العمود من فوق"}, {id:"B", text:"بتكبس على أول خلية"}, {id:"C", text:"دبل كليك بنص الشاشة"}, {id:"D", text:"Ctrl + A"}], correctAnswer: "A" },
+            { id: 6, question: "الملفات الجديدة بالإكسل شو بكون آخر اسمها (الامتداد)؟", options: [{id:"A", text:".doc"}, {id:"B", text:".xml"}, {id:"C", text:".xlsx"}, {id:"D", text:".xlsm"}], correctAnswer: "C" },
+            { id: 7, question: "شو يعني لما تشوف شبابيك #### جوا الخلية؟", options: [{id:"A", text:"المعادلة خربانة"}, {id:"B", text:"العمود ضيق، وسعه شوي"}, {id:"C", text:"الخلية فاضية"}, {id:"D", text:"الملف ضرب"}], correctAnswer: "B" },
+            { id: 8, question: "شو الدالة اللي بتجمعلك الأرقام مع بعض؟", options: [{id:"A", text:"COUNT"}, {id:"B", text:"AVERAGE"}, {id:"C", text:"SUM"}, {id:"D", text:"MAX"}], correctAnswer: "C" },
+            { id: 9, question: "شو الكبسة السحرية للنسخ (Copy)؟", options: [{id:"A", text:"Ctrl + V"}, {id:"B", text:"Ctrl + C"}, {id:"C", text:"Ctrl + X"}, {id:"D", text:"Ctrl + Z"}], correctAnswer: "B" },
+            { id: 10, question: "عشان تحفظ الملف باسم جديد أو بمكان ثاني، شو بتختار؟", options: [{id:"A", text:"Save"}, {id:"B", text:"Export"}, {id:"C", text:"Save As"}, {id:"D", text:"Share"}], correctAnswer: "C" }
+        ];
+
+        // --- 2. LOCALIZATION DICTIONARY (JORDANIAN) ---
+        const Dictionary = {
+            male: {
+                welcome: "يا هلا بالكبير!",
+                startBtn: "يلا نبلش الطشة",
+                questionHeader: "سؤال",
+                nextBtn: "اللي بعده",
+                retryBtn: "جرب مرة ثانية يا كبير",
+                resultPass: "يا عيني عليك! أبدعت",
+                resultFail: "بسيطة يا وحش، بتعوضها",
+                phrases: {
+                    single: ["وحش!", "نشمي!", "قطاعة!", "كبير!", "يسعد دينك!", "فنان!", "ولا غلطة!", "ذيب!", "شيخ!"],
+                    streak: ["ولعت معك! 🔥", "شو هالذكاء هاد!", "ما حدا قدك اليوم!", "سفاح والله سفاح!", "نار يا حبيبي نار!"]
+                }
+            },
+            female: {
+                welcome: "يا هلا بالنشمية!",
+                startBtn: "يلا نبلش الرحلة",
+                questionHeader: "سؤال",
+                nextBtn: "التالي يا قمر",
+                retryBtn: "جربي مرة ثانية يا مبدعة",
+                resultPass: "ما شاء الله عليكي! بتجنني",
+                resultFail: "ولا يهمك يا قمر، بسيطة",
+                phrases: {
+                    single: ["رائعة!", "بتجنني!", "مبدعة!", "ذكية!", "يسعد قلبك!", "فنانة!", "ممتازة!", "ولا غلطة!", "أنيقة!"],
+                    streak: ["شو هالإبداع هاد! ✨", "شطورة كثير!", "ما شاء الله عليكي!", "منورة والله منورة!", "اسم الله عليكي!"]
+                }
+            }
+        };
+
+        // --- 3. STATE ---
+        const State = {
+            step: 'setup', // setup -> intro -> quiz -> result
+            userData: { name: '', gender: 'male' }, // Default male
+            idx: 0,
+            score: 0,
+            streak: 0,
+            questions: []
+        };
+
+        // --- 4. CELLO ENGINE ---
+        const Cello = {
+            render(emotion = 'neutral') {
+                // Adjust colors based on gender
+                const pupilColor = '#1e293b'; // Dark Slate
+                const skinGrad1 = State.userData.gender === 'female' ? '#f472b6' : '#2CD4D4'; // Pink vs Teal
+                const skinGrad2 = State.userData.gender === 'female' ? '#db2777' : '#099999';
+                
+                const mouths = {
+                    neutral: "M35 75 Q50 80 65 75",
+                    happy: "M30 75 Q50 95 70 75",
+                    sad: "M35 85 Q50 70 65 85",
+                    thinking: "M45 80 Q50 75 55 80"
+                };
+
+                return `
+                <div class="cello-container relative group w-40 h-40 md:w-48 md:h-48 mx-auto mb-6">
+                    <div class="absolute inset-0 rounded-full blur-3xl opacity-30 animate-pulse-glow" style="background: var(--primary)"></div>
+                    
+                    <svg viewBox="0 0 100 100" class="w-full h-full animate-float-slow drop-shadow-2xl relative z-10">
+                        <defs>
+                            <linearGradient id="skinGrad-${emotion}" x1="0%" y1="0%" x2="100%" y2="100%">
+                                <stop offset="0%" stop-color="${skinGrad1}" /> 
+                                <stop offset="100%" stop-color="${skinGrad2}" /> 
+                            </linearGradient>
+                        </defs>
+
+                        <rect x="15" y="15" width="70" height="70" rx="22" fill="url(#skinGrad-${emotion})" stroke="white" stroke-width="2" stroke-opacity="0.3" />
+                        
+                        <path d="M20 20 Q50 12 80 20" stroke="white" stroke-width="3" stroke-opacity="0.4" fill="none" stroke-linecap="round" />
+
+                        <g class="eyes-container">
+                            <g class="eye-l transform origin-center">
+                                <circle cx="35" cy="45" r="9" fill="white" />
+                                <circle class="pupil" cx="35" cy="45" r="4" fill="${pupilColor}" />
+                                <circle cx="37" cy="43" r="2.5" fill="white" opacity="0.8" />
+                            </g>
+                            <g class="eye-r transform origin-center">
+                                <circle cx="65" cy="45" r="9" fill="white" />
+                                <circle class="pupil" cx="65" cy="45" r="4" fill="${pupilColor}" />
+                                <circle cx="67" cy="43" r="2.5" fill="white" opacity="0.8" />
+                            </g>
+                        </g>
+                        
+                        ${State.userData.gender === 'female' ? `
+                            <circle cx="25" cy="65" r="4" fill="#fb7185" opacity="0.5" />
+                            <circle cx="75" cy="65" r="4" fill="#fb7185" opacity="0.5" />
+                        ` : ''}
+
+                        <path d="${mouths[emotion]}" stroke="#1e293b" stroke-width="3.5" fill="none" stroke-linecap="round" stroke-linejoin="round" class="transition-all duration-500 ease-spring" />
+                    </svg>
+                </div>
+                `;
+            },
+            initEyeTracking() {
+                document.addEventListener('mousemove', (e) => {
+                    const pupils = document.querySelectorAll('.pupil');
+                    if(pupils.length === 0) return;
+                    const x = (e.clientX / window.innerWidth - 0.5) * 5; 
+                    const y = (e.clientY / window.innerHeight - 0.5) * 5;
+                    pupils.forEach(p => p.style.transform = `translate(${x}px, ${y}px)`);
+                });
+            }
+        };
+
+        // --- 5. APP LOGIC ---
+        const App = {
+            init() {
+                State.questions = [...QuizData];
+                this.renderSetup();
+                Cello.initEyeTracking();
+            },
+
+            // Step 1: Get Name & Gender
+            renderSetup() {
+                const html = `
+                    <div class="glass-card p-10 rounded-[2.5rem] text-center w-full max-w-md mx-auto animate-bounce-in">
+                        <div class="mb-6">
+                            <div class="w-24 h-24 bg-gray-100 rounded-full mx-auto flex items-center justify-center text-4xl mb-4 shadow-inner">👋</div>
+                            <h1 class="text-3xl font-black text-slate-800 mb-2"> هلا والله!</h1>
+                            <p class="text-slate-500">عشان نتعرف عليك ونزبطلك الجو، عبيلنا هالمعلومات عالسريع</p>
+                        </div>
+
+                        <div class="space-y-4 text-right">
+                            <div>
+                                <label class="block text-sm font-bold text-slate-600 mb-1 pr-2">شو اسمك الكريم؟</label>
+                                <input type="text" id="input-name" placeholder="اكتب اسمك هون..." class="input-glass w-full p-4 rounded-xl text-lg text-slate-800 placeholder-slate-400 text-center">
+                            </div>
+
+                            <div>
+                                <label class="block text-sm font-bold text-slate-600 mb-1 pr-2">الجنس </label>
+                                <div class="grid grid-cols-2 gap-3">
+                                    <button onclick="App.selectGender('male')" id="btn-male" class="p-4 rounded-xl border-2 border-transparent bg-teal-50 text-teal-700 hover:bg-teal-100 font-bold transition-all flex flex-col items-center gap-1">
+                                        <span class="text-2xl">👨‍💻</span>
+                                        <span>شب </span>
+                                    </button>
+                                    <button onclick="App.selectGender('female')" id="btn-female" class="p-4 rounded-xl border-2 border-transparent bg-pink-50 text-pink-700 hover:bg-pink-100 font-bold transition-all flex flex-col items-center gap-1">
+                                        <span class="text-2xl">👩‍💻</span>
+                                        <span>صبية </span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button onclick="App.submitSetup()" class="mt-8 w-full bg-slate-800 text-white py-4 rounded-xl font-bold text-lg hover:bg-black transition-all shadow-lg hover:translate-y-[-2px]">
+                            يلا تم!
+                        </button>
+                    </div>
+                `;
+                document.getElementById('view-container').innerHTML = html;
+                lucide.createIcons();
+            },
+
+            selectGender(gender) {
+                State.userData.gender = gender;
+                // Visual Feedback
+                document.getElementById('btn-male').classList.remove('ring-2', 'ring-teal-500', 'bg-teal-200');
+                document.getElementById('btn-female').classList.remove('ring-2', 'ring-pink-500', 'bg-pink-200');
+
+                if(gender === 'male') {
+                    document.getElementById('btn-male').classList.add('ring-2', 'ring-teal-500', 'bg-teal-200');
+                } else {
+                    document.getElementById('btn-female').classList.add('ring-2', 'ring-pink-500', 'bg-pink-200');
+                }
+            },
+
+            submitSetup() {
+                const nameInput = document.getElementById('input-name').value.trim();
+                if(!nameInput) {
+                    alert('يا ريت تكتب اسمك عشان نقدر نخاطبك 😊');
+                    return;
+                }
+                State.userData.name = nameInput;
+                
+                // Update Nav Name
+                document.getElementById('nav-username').innerText = nameInput;
+                
+                // APPLY THEME
+                if(State.userData.gender === 'female') {
+                    document.body.classList.add('theme-female');
+                } else {
+                    document.body.classList.remove('theme-female');
+                }
+
+                this.renderIntro();
+            },
+
+            renderIntro() {
+                const dict = Dictionary[State.userData.gender];
+                
+                const html = `
+                    <div class="glass-card p-10 md:p-14 rounded-[3rem] text-center w-full max-w-lg mx-auto relative overflow-hidden animate-slide-up">
+                        <div class="absolute top-0 left-0 w-full h-2" style="background: linear-gradient(90deg, var(--primary), var(--primary-light))"></div>
+                        
+                        ${Cello.render('happy')}
+                        
+                        <h1 class="text-3xl md:text-4xl font-black text-slate-800 mb-4 tracking-tight leading-snug">
+                            ${dict.welcome} <br>
+                            <span class="text-gradient">${State.userData.name}</span>
+                        </h1>
+                        <p class="text-slate-500 mb-10 text-lg leading-relaxed font-medium">
+                            أنا <span class="text-primary font-bold" style="color: var(--primary)">Cello</span>، وجايين نلعب ونشوف شطارتك بالإكسل. جاهز/ة للتحدي؟
+                        </p>
+                        
+                        <button onclick="App.startQuiz()" class="group relative w-full bg-primary text-white py-5 rounded-2xl font-bold text-xl shadow-xl hover:scale-[1.02] transition-all overflow-hidden" style="background: var(--primary)">
+                            <span class="relative z-10 flex items-center justify-center gap-2">
+                                ${dict.startBtn} <i data-lucide="rocket" class="w-5 h-5"></i>
+                            </span>
+                            <div class="absolute inset-0 bg-white/20 translate-y-full group-hover:translate-y-0 transition-transform duration-300"></div>
+                        </button>
+                    </div>
+                `;
+                this.updateView(html);
+            },
+
+            startQuiz() {
+                State.step = 'quiz';
+                State.idx = 0;
+                State.score = 0;
+                State.streak = 0;
+                this.renderQuestion();
+            },
+
+            renderQuestion() {
+                if (State.idx >= 10) return this.renderResult();
+                
+                const q = State.questions[State.idx];
+                const dict = Dictionary[State.userData.gender];
+                const progress = ((State.idx) / 10) * 100;
+                document.getElementById('progress-bar').style.width = `${progress}%`;
+                
+                const feedbackHtml = `<div id="feedback-area" class="h-8 mb-2 flex items-center justify-center text-lg font-black transition-all duration-300 opacity-0 transform translate-y-4 text-primary" style="color: var(--primary)"></div>`;
+
+                const html = `
+                    <div class="glass-card p-8 md:p-12 rounded-[2.5rem] w-full mx-auto relative animate-fade-in-up">
+                        <div class="absolute top-6 left-8 opacity-10 text-primary" style="color: var(--primary)">
+                            <i data-lucide="quote" class="w-16 h-16 fill-current rotate-180"></i>
+                        </div>
+
+                        <div class="flex flex-col items-center mb-6 relative z-10">
+                            ${Cello.render('thinking')}
+                            <span class="text-xs font-black text-primary uppercase tracking-[0.2em] mb-2 bg-white px-3 py-1 rounded-full border border-slate-100" style="color: var(--primary)">${dict.questionHeader} ${State.idx + 1} / 10</span>
+                            
+                            ${feedbackHtml}
+
+                            <h2 class="text-2xl md:text-3xl font-bold text-center text-slate-800 leading-snug mt-2">${q.question}</h2>
+                        </div>
+                        
+                        <div class="grid gap-4 relative z-10">
+                            ${q.options.map((opt, i) => `
+                                <button onclick="App.handleAnswer('${opt.id}')" id="btn-${opt.id}" 
+                                    class="option-btn p-5 rounded-2xl text-right flex justify-between items-center group w-full" style="animation-delay: ${i * 0.1}s">
+                                    <span class="font-bold text-slate-700 text-lg group-hover:text-primary transition-colors">${opt.text}</span>
+                                    <span class="w-8 h-8 rounded-full bg-slate-100 text-slate-400 flex items-center justify-center font-bold text-sm group-hover:bg-primary group-hover:text-white transition-all shadow-inner">${opt.id}</span>
+                                </button>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+                this.updateView(html);
+            },
+
+            handleAnswer(id) {
+                const q = State.questions[State.idx];
+                const isCorrect = (id === q.correctAnswer);
+                const btn = document.getElementById(`btn-${id}`);
+                const allBtns = document.querySelectorAll('.option-btn');
+                const feedbackEl = document.getElementById('feedback-area');
+                const dict = Dictionary[State.userData.gender];
+                
+                // Disable interactions
+                allBtns.forEach(b => {
+                    b.disabled = true;
+                    b.style.opacity = '0.6';
+                    b.style.transform = 'none';
+                });
+                btn.style.opacity = '1';
+
+                if (isCorrect) {
+                    State.score++;
+                    State.streak++;
+                    this.animateScore();
+                    
+                    // --- UNIQUE PHRASE LOGIC ---
+                    let phrasesPool = State.streak > 1 ? dict.phrases.streak : dict.phrases.single;
+                    // Pick random phrase that doesn't repeat immediately (simple random for now)
+                    let msg = phrasesPool[Math.floor(Math.random() * phrasesPool.length)];
+                    
+                    if(State.streak > 1) {
+                        msg = `${msg} (${State.streak} ورا بعض)`;
+                    }
+
+                    // Show Feedback
+                    feedbackEl.innerHTML = `✨ ${State.userData.name}, ${msg}`;
+                    feedbackEl.classList.remove('opacity-0', 'translate-y-4');
+                    feedbackEl.classList.add('animate-bounce-in');
+                    
+                    btn.classList.add('correct-anim');
+                    btn.style.backgroundColor = 'var(--bg-blob-3)'; // slight tint
+                    btn.style.borderColor = 'var(--primary)';
+                    btn.querySelector('span:last-child').style.backgroundColor = 'var(--primary)';
+                    btn.querySelector('span:last-child').style.color = 'white';
+                    
+                    this.confetti(btn.getBoundingClientRect());
+                } else {
+                    State.streak = 0;
+                    this.updateStreakDisplay();
+                    
+                    feedbackEl.innerHTML = `معلش، الجواب الصح هو ${q.correctAnswer}`;
+                    feedbackEl.classList.remove('opacity-0', 'translate-y-4', 'text-primary');
+                    feedbackEl.classList.add('text-red-500', 'animate-pulse');
+                    feedbackEl.style.color = '#ef4444';
+
+                    btn.classList.add('bg-red-50', 'border-red-400', 'wrong-anim');
+                    btn.querySelector('span:first-child').classList.add('text-red-600');
+                    
+                    const correctBtn = document.getElementById(`btn-${q.correctAnswer}`);
+                    correctBtn.style.opacity = '1';
+                    correctBtn.style.borderColor = 'var(--primary)';
+                    correctBtn.style.backgroundColor = 'var(--bg-blob-3)';
+                }
+
+                setTimeout(() => {
+                    State.idx++;
+                    this.renderQuestion();
+                }, 2200);
+            },
+
+            renderResult() {
+                document.getElementById('progress-bar').style.width = `100%`;
+                const isPass = State.score >= 6;
+                const emotion = isPass ? 'happy' : 'sad';
+                const dict = Dictionary[State.userData.gender];
+                
+                const html = `
+                    <div class="glass-card p-10 md:p-14 rounded-[3rem] text-center w-full max-w-lg mx-auto animate-slide-up">
+                        <div class="mb-6 transform scale-110">
+                            ${Cello.render(emotion)}
+                        </div>
+                        
+                        <h2 class="text-4xl font-black text-slate-800 mb-2">${isPass ? dict.resultPass : dict.resultFail}</h2>
+                        <div class="text-slate-500 mb-8 text-lg">
+                            جبتي / جبت
+                            <div class="inline-block bg-primary text-white px-4 py-1 rounded-lg font-black text-2xl mx-1 shadow-lg transform rotate-2" style="background: var(--primary)">${State.score} / 10</div>
+                        </div>
+                        
+                        <div class="flex flex-col gap-4">
+                            <button onclick="App.startQuiz()" class="w-full bg-slate-800 text-white py-4 rounded-xl font-bold text-lg hover:bg-black transition-all hover:shadow-lg">
+                                ${dict.retryBtn} 🔄
+                            </button>
+                            
+                            <div class="grid grid-cols-2 gap-4 mt-2">
+                                <a href="https://wa.me/+962788458787" target="_blank" class="flex items-center justify-center gap-2 bg-[#25D366]/10 text-[#25D366] py-4 rounded-xl font-bold hover:bg-[#25D366] hover:text-white transition-all border border-[#25D366]/20">
+                                    <i data-lucide="message-circle"></i> واتساب
+                                </a>
+                                <a href="https://www.linkedin.com/in/baselghanem" target="_blank" class="flex items-center justify-center gap-2 bg-[#0077b5]/10 text-[#0077b5] py-4 rounded-xl font-bold hover:bg-[#0077b5] hover:text-white transition-all border border-[#0077b5]/20">
+                                    <i data-lucide="linkedin"></i> لينكد إن
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                this.updateView(html);
+                if(isPass) this.confettiShower();
+            },
+
+            updateView(html) {
+                const container = document.getElementById('view-container');
+                container.style.opacity = '0';
+                container.style.transform = 'translateY(20px)';
+                
+                setTimeout(() => {
+                    container.innerHTML = html;
+                    lucide.createIcons();
+                    
+                    // Apply button styles dynamically after render
+                    document.querySelectorAll('.option-btn span.w-8').forEach(el => {
+                        el.parentElement.addEventListener('mouseenter', () => {
+                            if(!el.parentElement.disabled) {
+                                el.style.backgroundColor = 'var(--primary)';
+                                el.style.color = 'white';
+                            }
+                        });
+                        el.parentElement.addEventListener('mouseleave', () => {
+                            if(!el.parentElement.disabled) {
+                                el.style.backgroundColor = '#f1f5f9';
+                                el.style.color = '#94a3b8';
+                            }
+                        });
+                    });
+
+                    container.style.opacity = '1';
+                    container.style.transform = 'translateY(0)';
+                }, 300);
+            },
+
+            animateScore() {
+                const scoreEl = document.getElementById('score-display');
+                scoreEl.style.transform = 'scale(1.5)';
+                scoreEl.innerText = State.score;
+                setTimeout(() => scoreEl.style.transform = 'scale(1)', 200);
+                this.updateStreakDisplay();
+            },
+
+            updateStreakDisplay() {
+                const streakEl = document.getElementById('streak-display');
+                if(State.streak > 1) {
+                    streakEl.innerText = State.streak + "🔥";
+                    streakEl.classList.remove('hidden');
+                    streakEl.parentElement.classList.add('bg-orange-50', 'border-orange-200');
+                } else {
+                    streakEl.classList.add('hidden');
+                    streakEl.parentElement.classList.remove('bg-orange-50', 'border-orange-200');
+                }
+            },
+
+            confetti(rect) {
+                const colors = State.userData.gender === 'female' 
+                    ? ['#db2777', '#f472b6', '#fb7185'] 
+                    : ['#099999', '#2CD4D4', '#FFD700'];
+                    
+                for(let i=0; i<25; i++) {
+                    const el = document.createElement('div');
+                    el.style.position = 'fixed';
+                    el.style.left = (rect ? rect.left + rect.width/2 : window.innerWidth/2) + 'px';
+                    el.style.top = (rect ? rect.top : window.innerHeight/2) + 'px';
+                    el.style.width = Math.random()*8 + 5 + 'px';
+                    el.style.height = el.style.width;
+                    el.style.backgroundColor = colors[Math.floor(Math.random()*3)];
+                    el.style.borderRadius = '50%';
+                    el.style.zIndex = '100';
+                    document.body.appendChild(el);
+
+                    const angle = Math.random() * Math.PI * 2;
+                    const velocity = Math.random() * 120 + 60;
+                    
+                    const animation = el.animate([
+                        { transform: 'translate(0,0) scale(1)', opacity: 1 },
+                        { transform: `translate(${Math.cos(angle)*velocity}px, ${Math.sin(angle)*velocity}px) scale(0)`, opacity: 0 }
+                    ], {
+                        duration: 800,
+                        easing: 'cubic-bezier(0, .9, .57, 1)'
+                    });
+
+                    animation.onfinish = () => el.remove();
+                }
+            },
+            
+            confettiShower() {
+                setInterval(() => {
+                    this.confetti(null);
+                }, 250);
+            }
+        };
+
+        window.onload = () => App.init();
+    </script>
+</body>
+</html>
